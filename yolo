@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
-# 1) Create a stopped container from image `yolo-os`
-CID=$(docker create --name yolo_onceler -v "$(pwd):/home/onceler/workdir" yolo-os)
+# Create directories on host if they don't exist
+mkdir -p "$HOME/.claude"
+mkdir -p "$HOME/.codex"
 
-# 2) Copy your ~/.claude into the container (to /root/.claude)
-docker cp "$HOME/.claude" "$CID":/home/onceler/.claude
-docker cp "$HOME/.codex" "$CID":/home/onceler/.codex
-
-# 3) Start it interactively
-docker start -ai "$CID"
+# Run the container interactively with volume mounts
+docker run -it --rm \
+    --name "yolo-os-$(date +%Y%m%d-%H%M%S)" \
+    -v "$(pwd):/home/onceler/workdir" \
+    -v "$HOME/.claude:/home/onceler/.claude" \
+    -v "$HOME/.codex:/home/onceler/.codex" \
+    yolo-os \
+    "$@"

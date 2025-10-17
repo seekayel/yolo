@@ -41,6 +41,15 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Claude Code CLI (Anthropic's Claude CLI)
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install OpenAI Codex CLI
+RUN npm install -g @openai/codex
+
+# Install oh-my-zsh for better shell experience
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
+
 # Create onceler user with sudo privileges
 RUN useradd -m -s /bin/zsh onceler && \
     echo "onceler ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -49,24 +58,15 @@ RUN useradd -m -s /bin/zsh onceler && \
 USER onceler
 WORKDIR /home/onceler
 
-# Install Claude Code CLI (Anthropic's Claude CLI)
-RUN npm install -g @anthropic-ai/claude-code
-
-# Install OpenAI Codex CLI
-RUN npm install -g @openai/codex
-
-# Create directories for Claude and Codex configurations
-RUN mkdir -p /home/onceler/.claude && \
-    mkdir -p /home/onceler/.codex
-
-# Install oh-my-zsh for better shell experience
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
+# # Create directories for Claude and Codex configurations
+# RUN mkdir -p /home/onceler/.claude && \
+#     mkdir -p /home/onceler/.codex
 
 # Add local bin to PATH
 ENV PATH="/home/onceler/.local/bin:${PATH}"
 
 # Set working directory
-WORKDIR /home/onceler/workspace
+WORKDIR /home/onceler
 
 # Default command
 CMD ["/bin/zsh"]
