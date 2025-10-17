@@ -10,6 +10,7 @@ docker run -it --rm \
     --hostname yolo-os \
     -v "$(pwd):/home/onceler/workdir" \
     -v "$HOME/.claude:/home/onceler/.claude" \
+    -v "$HOME/.claude.json:/home/onceler/.claude.json" \
     -v "$HOME/.codex:/home/onceler/.codex" \
     yolo-os \
     "$@"
