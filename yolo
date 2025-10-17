@@ -7,6 +7,7 @@ mkdir -p "$HOME/.codex"
 # Run the container interactively with volume mounts
 docker run -it --rm \
     --name "yolo-os-$(date +%Y%m%d-%H%M%S)" \
+    --hostname yolo-os \
     -v "$(pwd):/home/onceler/workdir" \
     -v "$HOME/.claude:/home/onceler/.claude" \
     -v "$HOME/.codex:/home/onceler/.codex" \

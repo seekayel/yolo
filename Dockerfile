@@ -47,9 +47,6 @@ RUN npm install -g @anthropic-ai/claude-code
 # Install OpenAI Codex CLI
 RUN npm install -g @openai/codex
 
-# Install oh-my-zsh for better shell experience
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
-
 # Create onceler user with sudo privileges
 RUN useradd -m -s /bin/zsh onceler && \
     echo "onceler ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -57,6 +54,34 @@ RUN useradd -m -s /bin/zsh onceler && \
 # Switch to onceler user
 USER onceler
 WORKDIR /home/onceler
+
+# Install oh-my-zsh for onceler user
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Configure .zshrc with oh-my-zsh, git prompt, and aliases
+RUN echo '# Path to oh-my-zsh installation' > /home/onceler/.zshrc && \
+    echo 'export ZSH="$HOME/.oh-my-zsh"' >> /home/onceler/.zshrc && \
+    echo '' >> /home/onceler/.zshrc && \
+    echo '# Enable git plugin' >> /home/onceler/.zshrc && \
+    echo 'plugins=(git)' >> /home/onceler/.zshrc && \
+    echo '' >> /home/onceler/.zshrc && \
+    echo '# Source oh-my-zsh' >> /home/onceler/.zshrc && \
+    echo 'source $ZSH/oh-my-zsh.sh' >> /home/onceler/.zshrc && \
+    echo '' >> /home/onceler/.zshrc && \
+    echo '# Custom prompt with user@host and git info' >> /home/onceler/.zshrc && \
+    echo 'autoload -Uz vcs_info' >> /home/onceler/.zshrc && \
+    echo 'precmd() { vcs_info }' >> /home/onceler/.zshrc && \
+    echo 'zstyle ":vcs_info:git:*" formats " (%b%u%c)"' >> /home/onceler/.zshrc && \
+    echo 'zstyle ":vcs_info:*" enable git' >> /home/onceler/.zshrc && \
+    echo 'zstyle ":vcs_info:*" check-for-changes true' >> /home/onceler/.zshrc && \
+    echo 'zstyle ":vcs_info:*" unstagedstr "*"' >> /home/onceler/.zshrc && \
+    echo 'zstyle ":vcs_info:*" stagedstr "+"' >> /home/onceler/.zshrc && \
+    echo 'setopt prompt_subst' >> /home/onceler/.zshrc && \
+    echo 'PROMPT="%F{green}%n@%m%f:%F{blue}%~%f%F{yellow}\${vcs_info_msg_0_}%f$ "' >> /home/onceler/.zshrc && \
+    echo '' >> /home/onceler/.zshrc && \
+    echo '# Aliases' >> /home/onceler/.zshrc && \
+    echo 'alias claude="claude --dangerously-skip-permissions"' >> /home/onceler/.zshrc && \
+    echo 'alias codex="codex --dangerously-bypass-approvals-and-sandbox"' >> /home/onceler/.zshrc
 
 # # Create directories for Claude and Codex configurations
 # RUN mkdir -p /home/onceler/.claude && \
@@ -68,6 +93,9 @@ ENV PATH="/home/onceler/.local/bin:${PATH}"
 # Set working directory
 WORKDIR /home/onceler
 
-# Default command
-CMD ["/bin/zsh"]
+# Set hostname environment variable
+ENV HOSTNAME=yolo-os
+
+# Default command that sets hostname and starts zsh
+CMD sudo hostname yolo-os 2>/dev/null || true; /bin/zsh
 
