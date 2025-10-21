@@ -12,5 +12,6 @@ docker run -it --rm \
     -v "$HOME/.claude:/home/onceler/.claude" \
     -v "$HOME/.claude.json:/home/onceler/.claude.json" \
     -v "$HOME/.codex:/home/onceler/.codex" \
+    -v "$HOME/.gitconfig:/home/onceler/.gitconfig:ro" \
     yolo-os \
     "$@"
