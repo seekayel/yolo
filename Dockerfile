@@ -91,7 +91,7 @@ RUN echo '# Path to oh-my-zsh installation' > /home/onceler/.zshrc && \
 ENV PATH="/home/onceler/.local/bin:${PATH}"
 
 # Set working directory
-WORKDIR /home/onceler
+WORKDIR /home/onceler/workdir
 
 # Set hostname environment variable
 ENV HOSTNAME=yolo-os
