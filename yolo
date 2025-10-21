@@ -4,6 +4,11 @@
 mkdir -p "$HOME/.claude"
 mkdir -p "$HOME/.codex"
 
+# Get Claude Code credentials from Keychain
+if [ ! -f "$HOME/.claude/credentials.json" ]; then
+    security find-generic-password -s "Claude Code-credentials" -w > "$HOME/.claude/credentials.json"
+fi
+
 # Run the container interactively with volume mounts
 docker run -it --rm \
     --name "yolo-os-$(date +%Y%m%d-%H%M%S)" \
@@ -15,3 +20,9 @@ docker run -it --rm \
     -v "$HOME/.gitconfig:/home/onceler/.gitconfig:ro" \
     yolo-os \
     "$@"
+
+# Set Claude Code credentials back into Keychain for current user
+# might need to `stat -f '%Su' /dev/console` if running via automation
+if [ -f "$HOME/.claude/credentials.json" ]; then
+    security add-generic-password -a "$(whoami)" -s "Claude Code-credentials" -w "$(cat "$HOME/.claude/credentials.json")"
+fi
