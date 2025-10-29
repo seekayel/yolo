@@ -96,6 +96,6 @@ WORKDIR /home/onceler/workdir
 # Set hostname environment variable
 ENV HOSTNAME=yolo-os
 
-# Default command that sets hostname and starts zsh
-CMD sudo hostname yolo-os 2>/dev/null || true; /bin/zsh
+# Default command keeps the container running for devcontainer CLI
+CMD ["/bin/sh", "-c", "sleep infinity"]
 

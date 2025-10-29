@@ -1,28 +1,91 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Create directories on host if they don't exist
-mkdir -p "$HOME/.claude"
-mkdir -p "$HOME/.codex"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+CONFIG_PATH="$SCRIPT_DIR/.devcontainer/devcontainer.json"
 
-# Get Claude Code credentials from Keychain
-if [ ! -f "$HOME/.claude/credentials.json" ]; then
-    security find-generic-password -s "Claude Code-credentials" -w > "$HOME/.claude/credentials.json"
+if [[ ! -f "$CONFIG_PATH" ]]; then
+  echo "error: devcontainer configuration not found at $CONFIG_PATH" >&2
+  exit 1
 fi
 
-# Run the container interactively with volume mounts
-docker run -it --rm \
-    --name "yolo-os-$(date +%Y%m%d-%H%M%S)" \
-    --hostname yolo-os \
-    -v "$(pwd):/home/onceler/workdir" \
-    -v "$HOME/.claude:/home/onceler/.claude" \
-    -v "$HOME/.claude.json:/home/onceler/.claude.json" \
-    -v "$HOME/.codex:/home/onceler/.codex" \
-    -v "$HOME/.gitconfig:/home/onceler/.gitconfig:ro" \
-    yolo-os \
-    "$@"
-
-# Set Claude Code credentials back into Keychain for current user
-# might need to `stat -f '%Su' /dev/console` if running via automation
-if [ -f "$HOME/.claude/credentials.json" ]; then
-    security add-generic-password -a "$(whoami)" -s "Claude Code-credentials" -w "$(cat "$HOME/.claude/credentials.json")"
+if ! command -v docker >/dev/null 2>&1; then
+  echo "error: docker CLI not found. Install Docker to use yolo." >&2
+  exit 1
 fi
+
+WORKSPACE=$(pwd -P)
+
+# Ensure host directories and files exist for volume mounts
+mkdir -p "$HOME/.claude" "$HOME/.codex"
+
+if [[ ! -f "$HOME/.claude.json" ]]; then
+  touch "$HOME/.claude.json"
+fi
+
+if [[ ! -f "$HOME/.gitconfig" ]]; then
+  touch "$HOME/.gitconfig"
+fi
+
+# Fetch Claude Code credentials from macOS Keychain if available
+if command -v security >/dev/null 2>&1; then
+  if [[ ! -f "$HOME/.claude/credentials.json" ]]; then
+    security find-generic-password -s "Claude Code-credentials" -w > "$HOME/.claude/credentials.json" || true
+  fi
+fi
+
+restore_credentials() {
+  if command -v security >/dev/null 2>&1 && [[ -f "$HOME/.claude/credentials.json" ]]; then
+    security add-generic-password -a "$(whoami)" -s "Claude Code-credentials" -w "$(cat "$HOME/.claude/credentials.json")" >/dev/null 2>&1 || true
+  fi
+}
+
+LABEL_KEY="yolo.session"
+LABEL_VALUE="$(date +%s)-$$"
+
+cleanup() {
+  local status=$?
+  set +e
+  restore_credentials
+  if [[ "${YOLO_PERSIST_CONTAINER:-}" != "1" && -n "${LABEL_VALUE}" ]]; then
+    if command -v docker >/dev/null 2>&1; then
+      docker ps -aq --filter "label=${LABEL_KEY}=${LABEL_VALUE}" | xargs -r docker rm -f >/dev/null 2>&1
+    fi
+  fi
+  set -e
+  return $status
+}
+
+trap cleanup EXIT
+
+if command -v devcontainer >/dev/null 2>&1; then
+  DEVCONTAINER_CLI=(devcontainer)
+else
+  if ! command -v npx >/dev/null 2>&1; then
+    echo "error: devcontainer CLI not found and npx is unavailable. Install @devcontainers/cli or Node.js 18+." >&2
+    exit 1
+  fi
+  DEVCONTAINER_CLI=(npx --yes @devcontainers/cli)
+fi
+
+# Bring up the devcontainer for the current workspace
+"${DEVCONTAINER_CLI[@]}" up \
+  --workspace-folder "$WORKSPACE" \
+  --config "$CONFIG_PATH" \
+  --id-label "${LABEL_KEY}=${LABEL_VALUE}" \
+  --mount-workspace-git-root false
+
+if [[ $# -gt 0 ]]; then
+  TARGET_COMMAND=("$@")
+else
+  TARGET_COMMAND=(/bin/zsh -l)
+fi
+
+"${DEVCONTAINER_CLI[@]}" exec \
+  --workspace-folder "$WORKSPACE" \
+  --config "$CONFIG_PATH" \
+  --id-label "${LABEL_KEY}=${LABEL_VALUE}" \
+  -- "${TARGET_COMMAND[@]}"
+EXIT_STATUS=$?
+
+exit "$EXIT_STATUS"

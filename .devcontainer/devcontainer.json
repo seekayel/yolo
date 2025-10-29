@@ -1,0 +1,25 @@
+{
+  "name": "YOLO Devcontainer",
+  "build": {
+    "dockerfile": "../Dockerfile",
+    "context": ".."
+  },
+  "remoteUser": "onceler",
+  "workspaceFolder": "/home/onceler/workdir",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/onceler/workdir,type=bind,consistency=cached",
+  "updateRemoteUserUID": true,
+  "runArgs": [
+    "--hostname",
+    "yolo-os"
+  ],
+  "postStartCommand": "sudo hostname yolo-os 2>/dev/null || true",
+  "mounts": [
+    "source=${localEnv:HOME}/.claude,target=/home/onceler/.claude,type=bind",
+    "source=${localEnv:HOME}/.codex,target=/home/onceler/.codex,type=bind",
+    "source=${localEnv:HOME}/.claude.json,target=/home/onceler/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.gitconfig,target=/home/onceler/.gitconfig,type=bind,consistency=cached,ro"
+  ],
+  "containerEnv": {
+    "HOSTNAME": "yolo-os"
+  }
+}

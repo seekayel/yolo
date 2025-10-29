@@ -1,6 +1,6 @@
-# Build the Docker image
+# Build the devcontainer image
 build:
-    docker build -t yolo-os .
+    npx --yes @devcontainers/cli build --workspace-folder .
 
 test:
     echo "no tests for now lgtm 👍"
