@@ -33,7 +33,7 @@ Navigate to any project directory and run:
 yolo
 ```
 
-This launches an interactive shell inside the Dev Container with your current directory mounted at `~/workdir`. Inside the container, you can use the AI CLIs:
+This launches an interactive shell inside the Dev Container with your current directory mounted at `/workdir`. Inside the container, you can use the AI CLIs:
 
 ```bash
 # Inside the YOLO container
@@ -67,5 +67,19 @@ The main components are:
 - **yolo**: Bash script that launches the Dev Container using the Dev Containers CLI
 - **Justfile**: Build automation (wraps `devcontainer build`)
 
-The container runs as user `onceler` with sudo privileges and includes a customized zsh shell with oh-my-zsh and git integration.
+The container runs as `root` with a customized oh-my-zsh shell, git integration, and the AI CLI aliases preloaded.
+security find-generic-password -s "Claude Code-credentials" -w > "$HOME/.claude/credentials.json"
 
+docker build -t repo-credentials -f - . <<EOF
+FROM ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y nodejs npm
+RUN npm install -g @anthropic-ai/claude-code
+EOF
+
+docker run -it --rm --name repo-credentials -v "$HOME/.claude:/root/.claude" repo-credentials
+
+cat /root/.claude/credentials.json
+
+claude
