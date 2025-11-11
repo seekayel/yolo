@@ -1,6 +1,11 @@
 # Path to oh-my-zsh installation
 export ZSH="$HOME/.oh-my-zsh"
 
+# Initialize pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init -)"
+
 # Enable git plugin
 plugins=(git)
 
@@ -19,5 +24,5 @@ setopt prompt_subst
 PROMPT="%F{green}%n@%m%f:%F{blue}%~%f%F{yellow}\${vcs_info_msg_0_}%f$ "
 
 # Aliases
-alias claude="claude --dangerously-skip-permissions"
+alias claude="claude --dangerously-skip-permissions --allow-dangerously-skip-permissions"
 alias codex="codex --dangerously-bypass-approvals-and-sandbox"

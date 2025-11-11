@@ -25,6 +25,19 @@ RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     python3-dev \
+    # Pyenv dependencies
+    libssl-dev \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev \
     # Additional useful tools
     jq \
     just \
@@ -41,6 +54,20 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install pyenv
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+RUN curl https://pyenv.run | bash
+
+# Install Python 3.13.6 via pyenv
+RUN pyenv install 3.13.6 && \
+    pyenv global 3.13.6
+
+# Install uv for Python 3.13.6
+RUN $PYENV_ROOT/versions/3.13.6/bin/pip install --upgrade pip && \
+    $PYENV_ROOT/versions/3.13.6/bin/pip install uv && \
+    pyenv rehash
 
 # Install Claude Code CLI (Anthropic's Claude CLI)
 RUN npm install -g @anthropic-ai/claude-code
