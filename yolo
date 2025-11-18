@@ -29,8 +29,28 @@ fi
 
 # Fetch Claude Code credentials from macOS Keychain if available
 if command -v security >/dev/null 2>&1; then
-  if [[ ! -f "$HOME/.claude/credentials.json" ]]; then
-    security find-generic-password -s "Claude Code-credentials" -w > "$HOME/.claude/credentials.json" || true
+  CREDENTIALS_FILE="$HOME/.claude/credentials.json"
+  SHOULD_FETCH=false
+  
+  if [[ ! -f "$CREDENTIALS_FILE" ]]; then
+    SHOULD_FETCH=true
+  else
+    # Check if file is older than 1 hour (3600 seconds)
+    if [[ "$(uname)" == "Darwin" ]]; then
+      FILE_MOD_TIME=$(stat -f %m "$CREDENTIALS_FILE" 2>/dev/null || echo 0)
+    else
+      FILE_MOD_TIME=$(stat -c %Y "$CREDENTIALS_FILE" 2>/dev/null || echo 0)
+    fi
+    CURRENT_TIME=$(date +%s)
+    AGE=$((CURRENT_TIME - FILE_MOD_TIME))
+    
+    if [[ $AGE -gt 3600 ]]; then
+      SHOULD_FETCH=true
+    fi
+  fi
+  
+  if [[ "$SHOULD_FETCH" == "true" ]]; then
+    security find-generic-password -s "Claude Code-credentials" -w > "$CREDENTIALS_FILE" || true
   fi
 fi
 
