@@ -29,7 +29,7 @@ fi
 
 # Fetch Claude Code credentials from macOS Keychain if available
 if command -v security >/dev/null 2>&1; then
-  CREDENTIALS_FILE="$HOME/.claude/credentials.json"
+  CREDENTIALS_FILE="$HOME/.claude/.credentials.json"
   SHOULD_FETCH=false
   
   if [[ ! -f "$CREDENTIALS_FILE" ]]; then
@@ -55,8 +55,8 @@ if command -v security >/dev/null 2>&1; then
 fi
 
 restore_credentials() {
-  if command -v security >/dev/null 2>&1 && [[ -f "$HOME/.claude/credentials.json" ]]; then
-    security add-generic-password -a "$(whoami)" -s "Claude Code-credentials" -w "$(cat "$HOME/.claude/credentials.json")" >/dev/null 2>&1 || true
+  if command -v security >/dev/null 2>&1 && [[ -f "$HOME/.claude/.credentials.json" ]]; then
+    security add-generic-password -a "$(whoami)" -s "Claude Code-credentials" -w "$(cat "$HOME/.claude/.credentials.json")" >/dev/null 2>&1 || true
   fi
 }
 
