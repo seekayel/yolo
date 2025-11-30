@@ -5,8 +5,8 @@
     "context": ".."
   },
   "remoteUser": "onceler",
-  "workspaceFolder": "/workdir",
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workdir,type=bind,consistency=cached",
+  "workspaceFolder": "/home/onceler/${localWorkspaceFolderBasename}",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/onceler/${localWorkspaceFolderBasename},type=bind,consistency=cached",
   "runArgs": [
     "--hostname",
     "yolo-os"
