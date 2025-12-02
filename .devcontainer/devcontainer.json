@@ -19,6 +19,7 @@
     "source=${localEnv:HOME}/.gitconfig,target=/home/onceler/.gitconfig,type=bind,consistency=cached,ro"
   ],
   "containerEnv": {
-    "HOSTNAME": "yolo-os"
+    "HOSTNAME": "yolo-os",
+    "WARP_API_KEY": "${localEnv:WARP_API_KEY}"
   }
 }

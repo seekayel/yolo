@@ -55,6 +55,16 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install Warp CLI (warp-cli) from the official Warp APT repository
+RUN wget -qO- https://releases.warp.dev/linux/keys/warp.asc | gpg --dearmor > /tmp/warpdotdev.gpg \
+    && install -D -o root -g root -m 644 /tmp/warpdotdev.gpg /etc/apt/keyrings/warpdotdev.gpg \
+    && rm /tmp/warpdotdev.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/warpdotdev.gpg] https://releases.warp.dev/linux/deb stable main" > /etc/apt/sources.list.d/warpdotdev.list \
+    && apt-get update \
+    && apt-get install -y warp-cli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG USERNAME=onceler
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}
