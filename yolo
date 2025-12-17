@@ -101,17 +101,21 @@ fi
   --id-label "${LABEL_KEY}=${LABEL_VALUE}" \
   --mount-workspace-git-root false
 
+# If command provided, run it first
 if [[ $# -gt 0 ]]; then
-  TARGET_COMMAND=("$@")
-else
-  TARGET_COMMAND=(/bin/zsh -l)
+  "${DEVCONTAINER_CLI[@]}" exec \
+    --workspace-folder "$WORKSPACE" \
+    --config "$CONFIG_PATH" \
+    --id-label "${LABEL_KEY}=${LABEL_VALUE}" \
+    -- "$@" || true
 fi
 
+# Always drop into interactive shell
 "${DEVCONTAINER_CLI[@]}" exec \
   --workspace-folder "$WORKSPACE" \
   --config "$CONFIG_PATH" \
   --id-label "${LABEL_KEY}=${LABEL_VALUE}" \
-  -- "${TARGET_COMMAND[@]}"
+  -- /bin/zsh -l
 EXIT_STATUS=$?
 
 exit "$EXIT_STATUS"
