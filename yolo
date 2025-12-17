@@ -14,6 +14,12 @@ if ! command -v docker >/dev/null 2>&1; then
   exit 1
 fi
 
+# Check if Docker daemon is running
+if ! docker info >/dev/null 2>&1; then
+  echo "error: Docker daemon is not running. Please start Docker and try again." >&2
+  exit 1
+fi
+
 WORKSPACE=$(pwd -P)
 
 # Ensure host directories and files exist for volume mounts
