@@ -92,7 +92,7 @@ USER ${USERNAME}
 ENV HOME=${USER_HOME}
 ENV PYENV_ROOT="${HOME}/.pyenv"
 ENV NPM_CONFIG_PREFIX="${HOME}/.npm-global"
-ENV PATH="${HOME}/.local/bin:${NPM_CONFIG_PREFIX}/bin:${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"
+ENV PATH="${HOME}/.bun/bin:${HOME}/.local/bin:${NPM_CONFIG_PREFIX}/bin:${PYENV_ROOT}/bin:${PYENV_ROOT}/shims:${PATH}"
 
 # Use the home directory while configuring the shell and runtimes
 WORKDIR ${HOME}
@@ -111,6 +111,9 @@ RUN ${PYENV_ROOT}/versions/${PYTHON_VERSION}/bin/pip install --upgrade pip && \
 # Install Node-based AI CLIs inside the user's npm prefix
 RUN mkdir -p "${NPM_CONFIG_PREFIX}" && \
     npm install -g @anthropic-ai/claude-code @openai/codex
+
+# Install Bun
+RUN curl -fsSL https://bun.sh/install | bash
 
 # Copy the preconfigured zshrc for the onceler user
 COPY --chown=${USERNAME}:${USERNAME} vol/root/.zshrc ${HOME}/.zshrc
