@@ -46,6 +46,7 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     lsb-release \
     software-properties-common \
+    direnv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
