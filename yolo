@@ -33,6 +33,13 @@ if [[ ! -f "$HOME/.gitconfig" ]]; then
   touch "$HOME/.gitconfig"
 fi
 
+# Try to read Claude Code OAuth token from 1Password if available
+if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]] && command -v op >/dev/null 2>&1; then
+  if OAUTH_TOKEN=$(op read 'op://keys/env/CLAUDE_CODE_OAUTH_TOKEN' 2>/dev/null); then
+    export CLAUDE_CODE_OAUTH_TOKEN="$OAUTH_TOKEN"
+  fi
+fi
+
 # Fetch Claude Code credentials from macOS Keychain if available
 if command -v security >/dev/null 2>&1; then
   CREDENTIALS_FILE="$HOME/.claude/.credentials.json"

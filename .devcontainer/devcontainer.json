@@ -20,6 +20,7 @@
   ],
   "containerEnv": {
     "HOSTNAME": "yolo-os",
-    "WARP_API_KEY": "${localEnv:WARP_API_KEY}"
+    "WARP_API_KEY": "${localEnv:WARP_API_KEY}",
+    "CLAUDE_CODE_OAUTH_TOKEN": "${localEnv:CLAUDE_CODE_OAUTH_TOKEN}"
   }
 }
