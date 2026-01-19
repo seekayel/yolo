@@ -66,6 +66,18 @@ RUN wget -qO- https://releases.warp.dev/linux/keys/warp.asc | gpg --dearmor > /t
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install 1Password CLI (op)
+RUN ARCH="$(dpkg --print-architecture)" \
+    && curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/keyrings/1password-archive-keyring.gpg \
+    && echo "deb [arch=${ARCH} signed-by=/usr/share/keyrings/1password-archive-keyring.gpg] https://downloads.1password.com/linux/debian/${ARCH} stable main" > /etc/apt/sources.list.d/1password.list \
+    && mkdir -p /etc/debsig/policies/AC2D62742012EA22 /usr/share/debsig/keyrings/AC2D62742012EA22 \
+    && curl -sS https://downloads.1password.com/linux/debian/debsig/1password.pol > /etc/debsig/policies/AC2D62742012EA22/1password.pol \
+    && curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --dearmor --output /usr/share/debsig/keyrings/AC2D62742012EA22/debsig.gpg \
+    && apt-get update \
+    && apt-get install -y 1password-cli \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
 ARG USERNAME=onceler
 ARG USER_UID=1000
 ARG USER_GID=${USER_UID}

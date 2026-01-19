@@ -11,7 +11,7 @@
     "--hostname",
     "yolo-os"
   ],
-  "postStartCommand": "hostname yolo-os 2>/dev/null || true",
+  "postStartCommand": "hostname yolo-os 2>/dev/null || true; if command -v direnv >/dev/null 2>&1; then direnv allow /home/onceler/${localWorkspaceFolderBasename}; fi",
   "mounts": [
     "source=${localEnv:HOME}/.claude,target=/home/onceler/.claude,type=bind",
     "source=${localEnv:HOME}/.codex,target=/home/onceler/.codex,type=bind",
